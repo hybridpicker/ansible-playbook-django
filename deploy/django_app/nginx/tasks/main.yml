@@ -1,0 +1,73 @@
+- name: Create upload Directory MAIN
+  file:
+    path: "{{ proj_dir }}/uploads"
+    state: directory
+    owner: jarvis
+    mode: 0775
+
+- name: Create upload Directory DEVEL
+  file:
+    path: "{{ proj_dir_devel }}/uploads"
+    state: directory
+    owner: jarvis
+    mode: 0775
+
+- name: Recursively change ownership of a directory MAIN
+  ansible.builtin.file:
+    path: "{{ proj_dir }}/static_cdn"
+    state: directory
+    recurse: yes
+    owner: jarvis
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Recursively change ownership of a directory DEVEL
+  ansible.builtin.file:
+    path: "{{ proj_dir_devel }}/static_cdn"
+    state: directory
+    recurse: yes
+    owner: jarvis
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Copy Nginx Configuration File into Sites-Available
+  template:
+    src: nginx.conf
+    dest: "/etc/nginx/sites-available/{{ app_name }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Copy Nginx Configuration File into Sites-Available DEVEL
+  template:
+    src: nginx_devel.conf
+    dest: "/etc/nginx/sites-available/{{ app_name }}_devel.conf"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Enable Site MAIN
+  file: dest=/etc/nginx/sites-enabled/{{ app_name }}.conf src=/etc/nginx/sites-available/{{ app_name }}.conf state=link
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Enable Site DEVEL
+  file: dest=/etc/nginx/sites-enabled/{{ app_name }}_devel.conf src=/etc/nginx/sites-available/{{ app_name }}_devel.conf state=link
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  become: yes
+  become_method: sudo
+  become_user: root

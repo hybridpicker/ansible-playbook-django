@@ -1,0 +1,41 @@
+- name: pull from git MAIN
+  git:
+    repo: "{{ git_link }}"
+    dest: "{{ proj_dir }}"
+    update: yes
+    version: main
+    force: yes
+  become_user: "{{ app_user }}"
+
+- name: pull from git DEVEL
+  git:
+    repo: "{{ git_link }}"
+    dest: "{{ proj_dir }}"
+    update: yes
+    version: devel
+    force: yes
+  become_user: "{{ app_user }}"
+
+- name: Restart gunicorn Service MAIN
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: "{{ app_name }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Restart gunicorn Service DEVEL
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: "{{ app_name_devel }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  become: yes
+  become_method: sudo
+  become_user: root

@@ -1,0 +1,51 @@
+---
+
+- hosts: 127.0.0.1
+  become: True
+  #Ansible User
+  become_user: john_doe
+  gather_facts: no
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    #VARS -----
+    port: 8000
+    port_devel: 8001
+    secret_key: "my-django-secret-key"
+    db_user: "john_doe"
+    db_name: "testsite"
+    db_name_devel: "testsite-db"
+    db_pass: "q#JX6zy#AxbhEid$"
+    app_name: "testsite"
+    app_name_devel: "testsite_devel"
+    proj_name: "{{ app_name }}"
+    app_user: "john_doe"
+    server_name: "testsite.com"
+    server_name_www: "www.testsite.com"
+    server_name_devel: "devel.testsite.com"
+    domain: testsite.com
+    domain_devel: devel.testsite.com
+    git_link: https://github.com/john_doe/project.git
+    #--- END VARS
+    proj_dir: "/home/john_doe/apps/{{ app_name }}/{{ proj_name }}"
+    proj_dir_devel: "/home/john_doe/apps/devel/{{ app_name }}/{{ proj_name }}"
+    app_dir: "/home/john_doe/apps/{{ app_name }}/{{ proj_name }}/{{ app_name }}"
+    app_dir_devel: "/home/john_doe/apps/devel/{{ app_name }}/{{ proj_name }}/{{ app_name }}"
+    venv_dir: "/home/john_doe/apps/{{ app_name }}"
+    venv_dir_devel: "/home/john_doe/apps/devel/{{ app_name }}"
+    venv_name: "{{ app_name }}"
+    venv_name_devel: "{{ app_name }}-devel"
+    etc_dir: "/etc/gunicorn_deployment"
+    enabled_sites: "/etc/nginx/sites-enabled/"
+  roles:
+  - role: "deploy/django_app/postgres"
+    tags: ['postgres']
+  - role: 'deploy/django_app/app'
+    tags: ['app']
+  - role: 'deploy/django_app/gunicorn'
+    tags: ['gunicorn']
+  - role: 'deploy/django_app/nginx'
+    tags: ['nginx']
+  - role: 'deploy/django_app/certbot'
+    tags: ['certbot']
+  - role: 'deploy/django_app/gitpull'
+    tags: ['git_pull']

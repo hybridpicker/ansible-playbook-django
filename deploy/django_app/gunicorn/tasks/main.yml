@@ -1,0 +1,63 @@
+- name: Copy Gunicorn system unit
+  template:
+    src: gunicorn.service
+    dest: "/etc/systemd/system/{{ app_name }}.service"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Copy Gunicorn system unit DEVEL
+  template:
+    src: gunicorn_devel.service
+    dest: "/etc/systemd/system/{{ app_name_devel }}.service"
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Make sure a service unit is running
+  ansible.builtin.systemd:
+    state: started
+    name: "{{ app_name }}"
+    enabled: yes
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Make sure a service unit is running DEVEL
+  ansible.builtin.systemd:
+    state: started
+    name: "{{ app_name_devel }}"
+    enabled: yes
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Restart gunciorn Service MAIN
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: "{{ app_name }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: Restart gunciorn Service DEVEL
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: "{{ app_name_devel }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  become: yes
+  become_method: sudo
+  become_user: root

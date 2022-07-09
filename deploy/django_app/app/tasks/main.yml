@@ -1,0 +1,157 @@
+- name: Clone django project repository MAIN
+  git:
+    repo: "{{ git_link }}"
+    dest: "{{ proj_dir }}"
+    version: main
+  become_user: "{{ app_user }}"
+
+- name: Clone django project repository DEVEL
+  git:
+    repo: "{{ git_link }}"
+    dest: "{{ proj_dir_devel }}"
+    version: devel
+  become_user: "{{ app_user }}"
+
+- name: Create Venv and Upgrade Pip MAIN
+  pip:
+    name: pip
+    state: latest
+    virtualenv_site_packages: yes
+    virtualenv: "{{ venv_dir }}/venv"
+    virtualenv_command: "/usr/bin/python3 -m venv"
+  become_user: "{{ app_user }}"
+
+- name: Create Venv and Upgrade Pip DEVEL
+  pip:
+    name: pip
+    state: latest
+    virtualenv_site_packages: yes
+    virtualenv: "{{ venv_dir_devel }}/venv"
+    virtualenv_command: "/usr/bin/python3 -m venv"
+  become_user: "{{ app_user }}"
+
+- name: Pip install Requirements MAIN
+  pip:
+    virtualenv_site_packages: yes
+    virtualenv: "{{ venv_dir }}/venv"
+    requirements: "{{ proj_dir }}/requirements.txt"
+  become_user: "{{ app_user }}"
+
+- name: Pip install Requirements DEVEL
+  pip:
+    virtualenv_site_packages: yes
+    virtualenv: "{{ venv_dir_devel }}/venv"
+    requirements: "{{ proj_dir_devel }}/requirements.txt"
+  become_user: "{{ app_user }}"
+
+- name: Install Gunicorn MAIN
+  ansible.builtin.pip:
+    name: gunicorn
+    virtualenv: "{{ venv_dir }}/venv"
+  become_user: "{{ app_user }}"
+
+- name: Install Gunicorn DEVEL
+  ansible.builtin.pip:
+    name: gunicorn
+    virtualenv: "{{ venv_dir_devel }}/venv"
+  become_user: "{{ app_user }}"
+
+- name: Creating Local_settings.py MAIN
+  copy:
+    dest: "{{ proj_dir }}/local_settings.py"
+    content: |
+      DEBUG = False
+      DATABASES = {
+          'default': {
+              'ENGINE': 'django.db.backends.postgresql',
+              'NAME': '{{ db_name }}',
+              'USER': '{{ db_user }}',
+              'PASSWORD': '{{ db_pass }}',
+              'HOST': 'localhost',
+              'PORT': '5432',
+          }
+      }
+      ALLOWED_HOSTS = ['*']
+      from pathlib import Path
+      import os
+      BASE_DIR = Path(__file__).resolve().parent
+      STATIC_URL = '/static/'
+      STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
+      MEDIA_URL = '/media/'
+      MEDIA_ROOT = '/uploads'
+
+- name: Creating Local_settings.py DEVEL
+  copy:
+    dest: "{{ proj_dir_devel }}/local_settings.py"
+    content: |
+      DEBUG = True
+      DATABASES = {
+          'default': {
+              'ENGINE': 'django.db.backends.postgresql',
+              'NAME': '{{ db_name }}',
+              'USER': '{{ db_user }}',
+              'PASSWORD': '{{ db_pass }}',
+              'HOST': 'localhost',
+              'PORT': '5432',
+          }
+      }
+      ALLOWED_HOSTS = ['*']
+      from pathlib import Path
+      import os
+      BASE_DIR = Path(__file__).resolve().parent
+      STATIC_URL = '/static/'
+      STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
+      MEDIA_URL = '/media/'
+      MEDIA_ROOT = '/uploads'
+
+- name: apply django migrations MAIN
+  django_manage:
+    command: migrate
+    app_path: "{{ proj_dir }}"
+    settings: "{{ app_name }}.settings"
+    virtualenv: "{{ venv_dir }}/venv"
+  environment: 
+    SECRET_KEY: "{{ secret_key }}"
+    DB_NAME: "{{ db_name }}"
+    DB_USER: "{{ db_user }}"
+    DB_PASS: "{{ db_pass }}"
+  become_user: "{{ app_user }}"
+
+- name: apply django migrations DEVEL
+  django_manage:
+    command: migrate
+    app_path: "{{ proj_dir_devel }}"
+    settings: "{{ app_name }}.settings"
+    virtualenv: "{{ venv_dir_devel }}/venv"
+  environment: 
+    SECRET_KEY: "{{ secret_key }}"
+    DB_NAME: "{{ db_name_devel }}"
+    DB_USER: "{{ db_user }}"
+    DB_PASS: "{{ db_pass }}"
+  become_user: "{{ app_user }}"
+  
+- name: collectstatic files
+  django_manage:
+    command: collectstatic
+    app_path: "{{ proj_dir }}"
+    settings: "{{ app_name }}.settings"
+    virtualenv: "{{ venv_dir }}/venv"
+  environment: 
+    SECRET_KEY: "{{ secret_key }}"
+    DB_NAME: "{{ db_name }}"
+    DB_USER: "{{ db_user }}"
+    DB_PASS: "{{ db_pass }}"
+  become_user: "{{ app_user }}"
+
+- name: collectstatic files DEVEL
+  django_manage:
+    command: collectstatic
+    app_path: "{{ proj_dir_devel }}"
+    settings: "{{ app_name }}.settings"
+    virtualenv: "{{ venv_dir_devel }}/venv"
+  environment: 
+    SECRET_KEY: "{{ secret_key }}"
+    DB_NAME: "{{ db_name_devel }}"
+    DB_USER: "{{ db_user }}"
+    DB_PASS: "{{ db_pass }}"
+  become_user: "{{ app_user }}"

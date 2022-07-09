@@ -1,0 +1,4 @@
+- name: "Certbot for Domain DEVEL"
+  command: certbot --nginx -d {{ server_name }} -d {{ server_name_www }} -d {{ server_name_devel }}
+  become: true
+  become_user: root

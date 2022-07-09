@@ -36,6 +36,13 @@ Let the Ansible do the work
 
 For getting good results I prefer doing each tag in following order:
 
+Install Postgres
+====
+
+````
+ansible-playbook deploy.yml --tags postgres
+`````
+
 Install App
 ====
 

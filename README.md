@@ -8,33 +8,30 @@ Setup
 Editing your variables in /deploy.yml
 
 ```
-#Ansible User
-  become_user: john_doe
-  gather_facts: no
-  vars:
-    ansible_python_interpreter: /usr/bin/python3
-    #VARS -----
-    port: 8000
-    port_devel: 8001
-    secret_key: "my-django-secret-key"
-    db_user: "john_doe"
-    db_name: "testsite"
-    db_name_devel: "testsite-db"
-    db_pass: "q#JX6zy#AxbhEid$"
-    app_name: "testsite"
-    app_name_devel: "testsite_devel"
-    proj_name: "{{ app_name }}"
-    app_user: "john_doe"
-    server_name: "testsite.com"
-    server_name_www: "www.testsite.com"
-    server_name_devel: "devel.testsite.com"
-    domain: testsite.com
-    domain_devel: devel.testsite.com
-    git_link: https://github.com/john_doe/project.git
-    #--- END VARS
+become_user: john_doe
 ```
 
-Let the playbook do the work
+```
+port: 8000
+port_devel: 8001
+secret_key: "my-django-secret-key"
+db_user: "john_doe"
+db_name: "testsite"
+db_name_devel: "testsite-db"
+db_pass: "q#JX6zy#AxbhEid$"
+app_name: "testsite"
+app_name_devel: "testsite_devel"
+proj_name: "{{ app_name }}"
+app_user: "john_doe"
+server_name: "testsite.com"
+server_name_www: "www.testsite.com"
+server_name_devel: "devel.testsite.com"
+domain: testsite.com
+domain_devel: devel.testsite.com
+git_link: https://github.com/john_doe/project.git
+```
+
+Let the Ansible do the work
 ===
 
 For getting good results I prefer doing each tag in following order:

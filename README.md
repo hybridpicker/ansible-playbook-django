@@ -5,7 +5,7 @@ My approach to deploying Django App with Ansible with Postgres Database, Nginx a
 Setup
 ====
 
-Editing your variables in /deploy.yml
+Editing your variables in __/deploy.yml__:
 
 ```
 become_user: john_doe

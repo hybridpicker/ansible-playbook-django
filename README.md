@@ -1,4 +1,4 @@
-# Ansible Playbbok for Deploying Django
+# Ansible Playbook for Deploying Django
 My approach to deploying Django App with Ansible with Postgres Database, Nginx and Gunicorn on Linux
 
 

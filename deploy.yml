@@ -1,37 +1,37 @@
 ---
-
 - hosts: 127.0.0.1
   become: True
-  #Ansible User
-  become_user: john_doe
+  # Ansible User
+  become_user: some_user
   gather_facts: no
   vars:
-    ansible_python_interpreter: /usr/bin/python3
-    #VARS -----
-    port: 8000
-    port_devel: 8001
-    secret_key: "my-django-secret-key"
-    db_user: "john_doe"
-    db_name: "testsite"
-    db_name_devel: "testsite-db"
-    db_pass: "q#JX6zy#AxbhEid$"
-    app_name: "testsite"
-    app_name_devel: "testsite_devel"
+    ansible_python_interpreter: /bin/python3
+    # Variables -----
+    port: 8001
+    port_devel: 8002
+    secret_key: "your_secret_key_here"
+    db_user: "your_db_user_here"
+    db_name: "your_db_name_here"
+    db_name_devel: "your_db_name_devel_here"
+    db_pass: "your_db_password_here"
+    app_name: "your_app_name_here"
+    app_name_devel: "your_app_name_devel_here"
     proj_name: "{{ app_name }}"
-    app_user: "john_doe"
-    server_name: "testsite.com"
-    server_name_www: "www.testsite.com"
-    server_name_devel: "devel.testsite.com"
-    domain: testsite.com
-    domain_devel: devel.testsite.com
-    git_link: https://github.com/john_doe/project.git
-    #--- END VARS
-    proj_dir: "/home/john_doe/apps/{{ app_name }}/{{ proj_name }}"
-    proj_dir_devel: "/home/john_doe/apps/devel/{{ app_name }}/{{ proj_name }}"
-    app_dir: "/home/john_doe/apps/{{ app_name }}/{{ proj_name }}/{{ app_name }}"
-    app_dir_devel: "/home/john_doe/apps/devel/{{ app_name }}/{{ proj_name }}/{{ app_name }}"
-    venv_dir: "/home/john_doe/apps/{{ app_name }}"
-    venv_dir_devel: "/home/john_doe/apps/devel/{{ app_name }}"
+    app_user: "your_app_user_here"
+    server_name: "your_domain_here.com"
+    server_name_www: "www.your_domain_here.com"
+    server_name_devel: "devel.your_domain_here.com"
+    domain: your_domain_here.com
+    domain_devel: devel.your_domain_here.com
+    your_email: "youremail@domain.com"
+    git_link: https://github.com/your_git_user/your_app.git
+    #--- End Variables
+    proj_dir: "/home/some_user/apps/{{ app_name }}/{{ proj_name }}"
+    proj_dir_devel: "/home/some_user/apps/devel/{{ app_name }}/{{ proj_name }}"
+    app_dir: "/home/some_user/apps/{{ app_name }}/{{ proj_name }}/{{ app_name }}"
+    app_dir_devel: "/home/some_user/apps/devel/{{ app_name }}/{{ proj_name }}/{{ app_name }}"
+    venv_dir: "/home/some_user/apps/{{ app_name }}"
+    venv_dir_devel: "/home/some_user/apps/devel/{{ app_name }}"
     venv_name: "{{ app_name }}"
     venv_name_devel: "{{ app_name }}-devel"
     etc_dir: "/etc/gunicorn_deployment"

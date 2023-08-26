@@ -1,30 +1,37 @@
-- name: Create a new database with name  "{{db_name}}"
+- name: Create a new database with the name "{{ db_name }}"
   community.postgresql.postgresql_db:
     name: "{{ db_name }}"
   become: true
   become_user: postgres
+  when: db_name is defined and db_name != ''
 
-- name: Create devel database "{{db_name_devel}}"
+- name: Create development database "{{ db_name_devel }}"
   community.postgresql.postgresql_db:
     name: "{{ db_name_devel }}"
   become: true
   become_user: postgres
+  when: db_name_devel is defined and db_name_devel != ''
 
-# GRANT ALL PRIVILEGES ON DATABASE TO user MAIN_DB
+# Grant all privileges on the main database to the user
 - postgresql_privs:
     db: "{{ db_name }}"
     privs: ALL
     type: database
-    role: jarvis
+    role: "{{ db_user }}"
   become: true
   become_user: postgres
+  when: 
+    - db_name is defined and db_name != ''
+    - db_user is defined and db_user != ''
 
-
-# GRANT ALL PRIVILEGES ON DATABASE TO user DEVEL_DB 
+# Grant all privileges on the development database to the user
 - postgresql_privs:
     db: "{{ db_name_devel }}"
     privs: ALL
     type: database
-    role: jarvis
+    role: "{{ db_user }}"
   become: true
   become_user: postgres
+  when: 
+    - db_name_devel is defined and db_name_devel != ''
+    - db_user is defined and db_user != ''

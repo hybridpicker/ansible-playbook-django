@@ -1,41 +1,62 @@
-- name: pull from git MAIN
+---
+- name: pull from git master
   git:
     repo: "{{ git_link }}"
     dest: "{{ proj_dir }}"
     update: yes
-    version: main
-    force: yes
+    version: master
   become_user: "{{ app_user }}"
+  notify: Restart services master
 
 - name: pull from git DEVEL
   git:
     repo: "{{ git_link }}"
-    dest: "{{ proj_dir }}"
+    dest: "{{ proj_dir_devel }}"
     update: yes
     version: devel
-    force: yes
+  become_user: "{{ app_user }}"
+  notify: Restart services devel
+
+- name: Django-Migrationen anwenden
+  shell: "{{ venv_dir }}/venv/bin/python {{ proj_dir }}/manage.py migrate --noinput --settings=fretboard.settings"
+  args:
+    chdir: "{{ proj_dir }}"
+  environment: 
+    SECRET_KEY: "{{ secret_key }}"
+    DB_NAME: "{{ db_name }}"
+    DB_USER: "{{ db_user }}"
+    DB_PASS: "{{ db_pass }}"
   become_user: "{{ app_user }}"
 
-- name: Restart gunicorn Service MAIN
-  ansible.builtin.systemd:
-    state: restarted
-    daemon_reload: yes
-    name: "{{ app_name }}"
-  become: yes
-  become_method: sudo
-  become_user: root
+- name: Django collectstatic für master
+  shell: "{{ venv_dir }}/venv/bin/python {{ proj_dir }}/manage.py collectstatic --noinput --settings=fretboard.settings"
+  args:
+    chdir: "{{ proj_dir }}"
+  environment: 
+    SECRET_KEY: "{{ secret_key }}"
+    DB_NAME: "{{ db_name }}"
+    DB_USER: "{{ db_user }}"
+    DB_PASS: "{{ db_pass }}"
+  become_user: "{{ app_user }}"
 
-- name: Restart gunicorn Service DEVEL
-  ansible.builtin.systemd:
-    state: restarted
-    daemon_reload: yes
-    name: "{{ app_name_devel }}"
-  become: yes
-  become_method: sudo
-  become_user: root
+- name: Django-Migrationen anwenden DEVEL
+  shell: "{{ venv_dir }}/venv/bin/python {{ proj_dir_devel }}/manage.py migrate --noinput --settings=fretboard.settings"
+  args:
+    chdir: "{{ proj_dir_devel }}"
+  environment: 
+    SECRET_KEY: "{{ secret_key }}"
+    DB_NAME: "{{ db_name_devel }}"
+    DB_USER: "{{ db_user }}"
+    DB_PASS: "{{ db_pass }}"
+  become_user: "{{ app_user }}"
 
-- name: restart nginx
-  service: name=nginx state=restarted
-  become: yes
-  become_method: sudo
-  become_user: root
+- name: Django collectstatic für DEVEL
+  shell: "{{ venv_dir }}/venv/bin/python {{ proj_dir_devel }}/manage.py collectstatic --noinput --settings=fretboard.settings"
+  args:
+    chdir: "{{ proj_dir_devel }}"
+  environment: 
+    SECRET_KEY: "{{ secret_key }}"
+    DB_NAME: "{{ db_name_devel }}"
+    DB_USER: "{{ db_user }}"
+    DB_PASS: "{{ db_pass }}"
+  become_user: "{{ app_user }}"

@@ -1,6 +1,7 @@
+---
 - name: Copy Gunicorn system unit
   template:
-    src: gunicorn.service
+    src: gunicorn.service.j2
     dest: "/etc/systemd/system/{{ app_name }}.service"
     owner: root
     group: root
@@ -11,7 +12,7 @@
 
 - name: Copy Gunicorn system unit DEVEL
   template:
-    src: gunicorn_devel.service
+    src: gunicorn_devel.service.j2
     dest: "/etc/systemd/system/{{ app_name_devel }}.service"
     owner: root
     group: root

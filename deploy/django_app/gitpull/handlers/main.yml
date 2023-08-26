@@ -1,0 +1,46 @@
+---
+- name: Restart services master
+  block:
+    - name: Restart gunicorn Service master
+      ansible.builtin.systemd:
+        state: restarted
+        daemon_reload: yes
+        name: "{{ app_name }}"
+      become: yes
+      become_method: sudo
+      become_user: root
+
+    - name: restart nginx
+      service: name=nginx state=restarted
+      become: yes
+      become_method: sudo
+      become_user: root
+
+    - name: "Renew SSL-Cert for Domain master"
+      command: certbot renew --cert-name {{ server_name }}
+      become: true
+      become_user: root
+      ignore_errors: yes
+
+    - name: "Renew SSL-Cert for Domain master www"
+      command: certbot renew --cert-name {{ server_name_www }}
+      become: true
+      become_user: root
+      ignore_errors: yes
+
+- name: Restart services devel
+  block:
+    - name: Restart gunicorn Service DEVEL
+      ansible.builtin.systemd:
+        state: restarted
+        daemon_reload: yes
+        name: "{{ app_name_devel }}"
+      become: yes
+      become_method: sudo
+      become_user: root
+
+    - name: restart nginx
+      service: name=nginx state=restarted
+      become: yes
+      become_method: sudo
+      become_user: root

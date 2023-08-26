@@ -1,4 +1,22 @@
-- name: "Certbot for Domain DEVEL"
-  command: certbot --nginx -d {{ server_name }} -d {{ server_name_www }} -d {{ server_name_devel }}
+---
+- name: Überprüfen, ob das Zertifikat bereits vorhanden ist
+  stat:
+    path: "/etc/letsencrypt/live/{{ server_name }}/fullchain.pem"
+  register: cert
   become: true
   become_user: root
+
+- name: "Certbot für Domain mit Webroot"
+  command: "certbot certonly --webroot -w /path/to/your/webroot -d {{ server_name }} -d {{ server_name_www }} -d {{ server_name_devel }} --email {{ your_email }} --agree-tos --no-eff-email"
+  become: true
+  become_user: root
+  when: not cert.stat.exists
+
+- name: Fügen Sie einen Cron-Job für die automatische Erneuerung hinzu
+  cron:
+    name: "Certbot Renew"
+    minute: "30"
+    hour: "2"
+    job: "/usr/bin/certbot renew --quiet"
+    user: root
+  become: true

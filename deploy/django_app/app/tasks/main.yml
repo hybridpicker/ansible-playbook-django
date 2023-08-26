@@ -1,8 +1,8 @@
-- name: Clone django project repository MAIN
+- name: Clone django project repository master
   git:
     repo: "{{ git_link }}"
     dest: "{{ proj_dir }}"
-    version: main
+    version: master
   become_user: "{{ app_user }}"
 
 - name: Clone django project repository DEVEL
@@ -12,7 +12,7 @@
     version: devel
   become_user: "{{ app_user }}"
 
-- name: Create Venv and Upgrade Pip MAIN
+- name: Create Venv and Upgrade Pip master
   pip:
     name: pip
     state: latest
@@ -30,7 +30,7 @@
     virtualenv_command: "/usr/bin/python3 -m venv"
   become_user: "{{ app_user }}"
 
-- name: Pip install Requirements MAIN
+- name: Pip install Requirements master
   pip:
     virtualenv_site_packages: yes
     virtualenv: "{{ venv_dir }}/venv"
@@ -44,7 +44,7 @@
     requirements: "{{ proj_dir_devel }}/requirements.txt"
   become_user: "{{ app_user }}"
 
-- name: Install Gunicorn MAIN
+- name: Install Gunicorn master
   ansible.builtin.pip:
     name: gunicorn
     virtualenv: "{{ venv_dir }}/venv"
@@ -56,7 +56,7 @@
     virtualenv: "{{ venv_dir_devel }}/venv"
   become_user: "{{ app_user }}"
 
-- name: Creating Local_settings.py MAIN
+- name: Creating Local_settings.py master
   copy:
     dest: "{{ proj_dir }}/local_settings.py"
     content: |
@@ -79,6 +79,7 @@
       STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
       MEDIA_URL = '/media/'
       MEDIA_ROOT = '/uploads'
+      SECRET_KEY = '{{ secret_key }}'
 
 - name: Creating Local_settings.py DEVEL
   copy:
@@ -88,7 +89,7 @@
       DATABASES = {
           'default': {
               'ENGINE': 'django.db.backends.postgresql',
-              'NAME': '{{ db_name }}',
+              'NAME': '{{ db_name_devel }}',
               'USER': '{{ db_user }}',
               'PASSWORD': '{{ db_pass }}',
               'HOST': 'localhost',
@@ -103,13 +104,21 @@
       STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
       MEDIA_URL = '/media/'
       MEDIA_ROOT = '/uploads'
+      SECRET_KEY = '{{ secret_key }}'
 
-- name: apply django migrations MAIN
-  django_manage:
-    command: migrate
-    app_path: "{{ proj_dir }}"
-    settings: "{{ app_name }}.settings"
-    virtualenv: "{{ venv_dir }}/venv"
+
+- name: Show current directory
+  shell: pwd
+  become_user: "{{ app_user }}"
+
+- name: Show environment variables
+  shell: env
+  become_user: "{{ app_user }}"
+
+- name: Apply Django migrations
+  shell: "{{ venv_dir }}/venv/bin/python3 {{ proj_dir }}/manage.py migrate --noinput --settings={{ app_name }}.settings"
+  args:
+    chdir: "{{ proj_dir }}"
   environment: 
     SECRET_KEY: "{{ secret_key }}"
     DB_NAME: "{{ db_name }}"
@@ -117,20 +126,18 @@
     DB_PASS: "{{ db_pass }}"
   become_user: "{{ app_user }}"
 
-- name: apply django migrations DEVEL
-  django_manage:
-    command: migrate
-    app_path: "{{ proj_dir_devel }}"
-    settings: "{{ app_name }}.settings"
-    virtualenv: "{{ venv_dir_devel }}/venv"
+- name: Apply Django migrations DEVEL
+  shell: "{{ venv_dir }}/venv/bin/python3 {{ proj_dir_devel }}/manage.py migrate --noinput --settings={{ app_name }}.settings"
+  args:
+    chdir: "{{ proj_dir_devel }}"
   environment: 
     SECRET_KEY: "{{ secret_key }}"
     DB_NAME: "{{ db_name_devel }}"
     DB_USER: "{{ db_user }}"
     DB_PASS: "{{ db_pass }}"
   become_user: "{{ app_user }}"
-  
-- name: collectstatic files
+
+- name: Collect static files
   django_manage:
     command: collectstatic
     app_path: "{{ proj_dir }}"
@@ -143,7 +150,7 @@
     DB_PASS: "{{ db_pass }}"
   become_user: "{{ app_user }}"
 
-- name: collectstatic files DEVEL
+- name: Collect static files DEVEL
   django_manage:
     command: collectstatic
     app_path: "{{ proj_dir_devel }}"

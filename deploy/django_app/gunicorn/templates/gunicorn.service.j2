@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=jarvis
 WorkingDirectory={{ proj_dir }}
-ExecStart="{{ venv_dir }}/venv/bin/gunicorn" -b 127.0.0.1:{{ port }} {{ app_name }}.wsgi
+ExecStart={{ venv_dir }}/venv/bin/gunicorn -b 127.0.0.1:{{ port }} {{ app_name }}.wsgi
 
 [Install]
 WantedBy=multi-user.target

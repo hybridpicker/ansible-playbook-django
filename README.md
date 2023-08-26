@@ -25,10 +25,10 @@ server_name_devel: "devel.testsite.com"
 domain: testsite.com
 domain_devel: devel.testsite.com
 git_link: https://github.com/john_doe/project.git  # Replace with your repository link
+```
 
-
-Let the Ansible do the work
-===
+Let Ansible do the work
+====
 
 For getting good results I prefer doing each tag in following order:
 

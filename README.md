@@ -1,24 +1,20 @@
 # Ansible Playbook for Deploying Django
-My approach to deploying Django App with Ansible with Postgres Database, Nginx and Gunicorn on Linux
 
+This playbook is designed to deploy a Django application using Ansible. It sets up a Postgres database, Nginx, and Gunicorn on a Linux server.
 
-Setup
-====
+## Setup
 
-Editing your variables in __/deploy.yml__:
+Edit your variables in `/deploy.yml`:
 
-```
+```yaml
 become_user: john_doe
-```
-
-```
 port: 8000
 port_devel: 8001
-secret_key: "my-django-secret-key"
+secret_key: "my-django-secret-key"  # Replace with a secure key
 db_user: "john_doe"
 db_name: "testsite"
 db_name_devel: "testsite-db"
-db_pass: "q#JX6zy#AxbhEid$"
+db_pass: "q#JX6zy#AxbhEid$"  # Replace with a secure password
 app_name: "testsite"
 app_name_devel: "testsite_devel"
 proj_name: "{{ app_name }}"
@@ -28,8 +24,8 @@ server_name_www: "www.testsite.com"
 server_name_devel: "devel.testsite.com"
 domain: testsite.com
 domain_devel: devel.testsite.com
-git_link: https://github.com/john_doe/project.git
-```
+git_link: https://github.com/john_doe/project.git  # Replace with your repository link
+
 
 Let the Ansible do the work
 ===
